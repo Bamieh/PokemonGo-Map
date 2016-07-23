@@ -405,6 +405,7 @@ function updateMap() {
     localStorage.showGyms = localStorage.showGyms || true;
     localStorage.showPokestops = localStorage.showPokestops || false;
     localStorage.showScanned = localStorage.showScanned || false;
+    localStorage.showSteps = localStorage.showSteps || false;
 
     $.ajax({
         url: "raw_data",
