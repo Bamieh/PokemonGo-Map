@@ -87,17 +87,6 @@ function initMap() {
         },
     });
 
-    for (var i=1;i < 4; i++) {
-        new google.maps.Circle({
-          map: map,
-          radius: i*100,
-          fillColor: '#AA0000',
-          strokeWeight: 0,
-          strokeOpacity: 0.2,
-          center: { lat: center_lat, lng: center_lng }
-        });
-    }
-
 	var style_dark = new google.maps.StyledMapType(darkStyle, {name: "Dark"});
 	map.mapTypes.set('dark_style', style_dark);
 
@@ -113,6 +102,9 @@ function initMap() {
 
     if (!localStorage['map_style'] || localStorage['map_style'] === 'undefined') {
         localStorage['map_style'] = 'roadmap';
+    }
+    if(localStorage["showSteps"]) {
+        setupStepsRadius();
     }
 
     map.setMapTypeId(localStorage['map_style']);
@@ -134,6 +126,7 @@ function initSidebar() {
     $('#pokemon-switch').prop('checked', localStorage.showPokemon === 'true');
     $('#pokestops-switch').prop('checked', localStorage.showPokestops === 'true');
     $('#scanned-switch').prop('checked', localStorage.showScanned === 'true');
+    $('#steps-switch').prop('checked', localStorage.showSteps === 'true');
     $('#sound-switch').prop('checked', localStorage.playSound === 'true');
 
     var searchBox = new google.maps.places.SearchBox(document.getElementById('next-location'));
@@ -507,6 +500,43 @@ document.getElementById('gyms-switch').onclick = function() {
         map_gyms = {}
     }
 };
+
+var stepsRadiusCircles = [];
+
+
+function setupStepsRadius(status) {
+    var littleAnimation = window.setInterval(function() {
+        var circleCount = stepsRadiusCircles.length + 1;
+
+        if(circleCount < 4) {
+            var stepRadius = new google.maps.Circle({
+              map: map,
+              radius: circleCount*100,
+              fillColor: '#2b4da2',
+              strokeWeight: 0,
+              fillOpacity: 0.2,
+              center: { lat: center_lat, lng: center_lng }
+            });
+            return stepsRadiusCircles.push(stepRadius);
+        }
+        clearInterval(littleAnimation);
+    }, 66);
+}
+
+$('#steps-switch').change(function() {
+    localStorage["showSteps"] = this.checked;
+
+    if (this.checked) {
+        setupStepsRadius();
+    } else {
+        var littleAnimation = window.setInterval(function() {
+            if(!stepsRadiusCircles.length) return clearInterval(littleAnimation);
+            var stepRadius = stepsRadiusCircles.splice(-1, 1)[0];
+            stepRadius.setMap(null);
+        }, 66);
+    }
+});
+
 
 $('#pokemon-switch').change(function() {
     localStorage["showPokemon"] = this.checked;
